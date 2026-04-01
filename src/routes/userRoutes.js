@@ -4,15 +4,14 @@ const userController = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const rbac = require('../middleware/rbac');
 
-// Public route
+// Public route: login
 router.post('/login', userController.login);
 
-// Apply auth + RBAC for all admin routes
-router.use(auth, rbac(['admin']));
+// Admin-only routes
+router.post('/', auth, rbac(['admin']), userController.createUser);
+router.get('/', auth, rbac(['admin']), userController.getUsers);
 
-// Admin routes
-router.post('/', userController.createUser);
-router.get('/', userController.getUsers);
-router.patch('/:id/status', userController.updateUserStatus);
+// Admin can update user status
+router.patch('/:id/status', auth, rbac(['admin']), userController.updateUserStatus);
 
 module.exports = router;
