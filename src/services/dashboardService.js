@@ -46,35 +46,33 @@ class DashboardService {
       .slice(0, 5);
 
     // Trends: Monthly aggregation
-   const monthlyTrends = records.reduce((accumulator, record) => {
-  const recordDate = new Date(record.date);
+const monthlyTrendsMap = new Map();
 
-  const year = recordDate.getFullYear();
-  const month = String(recordDate.getMonth() + 1).padStart(2, "0");
+for (const record of records) {
+  const date = new Date(record.date);
+  const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
-  const monthKey = `${year}-${month}`;
-
-  // Initialize month bucket if not present
-  if (!accumulator[monthKey]) {
-    accumulator[monthKey] = {
+  if (!monthlyTrendsMap.has(monthKey)) {
+    monthlyTrendsMap.set(monthKey, {
       income: 0,
       expense: 0,
       net: 0
-    };
+    });
   }
 
-  // Update values based on record type
+  const monthData = monthlyTrendsMap.get(monthKey);
+
   if (record.type === "income") {
-    accumulator[monthKey].income += record.amount;
-    accumulator[monthKey].net += record.amount;
+    monthData.income += record.amount;
+    monthData.net += record.amount;
   } else {
-    accumulator[monthKey].expense += record.amount;
-    accumulator[monthKey].net -= record.amount;
+    monthData.expense += record.amount;
+    monthData.net -= record.amount;
   }
+}
 
-  return accumulator;
-}, {});
-
+// Convert Map → Object (if needed)
+const monthlyTrends = Object.fromEntries(monthlyTrendsMap);
     return {
       totalIncome,
       totalExpense,
