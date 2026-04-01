@@ -46,24 +46,34 @@ class DashboardService {
       .slice(0, 5);
 
     // Trends: Monthly aggregation
-    const monthlyTrends = records.reduce((acc, record) => {
-      const date = new Date(record.date);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      
-      if (!acc[monthKey]) {
-        acc[monthKey] = { income: 0, expense: 0, net: 0 };
-      }
+   const monthlyTrends = records.reduce((accumulator, record) => {
+  const recordDate = new Date(record.date);
 
-      if (record.type === 'income') {
-        acc[monthKey].income += record.amount;
-        acc[monthKey].net += record.amount;
-      } else {
-        acc[monthKey].expense += record.amount;
-        acc[monthKey].net -= record.amount;
-      }
-      
-      return acc;
-    }, {});
+  const year = recordDate.getFullYear();
+  const month = String(recordDate.getMonth() + 1).padStart(2, "0");
+
+  const monthKey = `${year}-${month}`;
+
+  // Initialize month bucket if not present
+  if (!accumulator[monthKey]) {
+    accumulator[monthKey] = {
+      income: 0,
+      expense: 0,
+      net: 0
+    };
+  }
+
+  // Update values based on record type
+  if (record.type === "income") {
+    accumulator[monthKey].income += record.amount;
+    accumulator[monthKey].net += record.amount;
+  } else {
+    accumulator[monthKey].expense += record.amount;
+    accumulator[monthKey].net -= record.amount;
+  }
+
+  return accumulator;
+}, {});
 
     return {
       totalIncome,
