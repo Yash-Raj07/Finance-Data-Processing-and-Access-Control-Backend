@@ -15,22 +15,44 @@ const authMiddleware = (req, res, next) => {
     return res.status(401).json({ error: 'Authentication required. Please provide a Bearer token.' });
   }
 
+const authenticate = (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = userService.getUserById(decoded.id);
+    const decodedToken = jwt.verify(token, JWT_SECRET);
+    const user = userService.getUserById(decodedToken.id);
 
+    // Validate user existence
     if (!user) {
-      return res.status(401).json({ error: 'User not found. Invalid token.' });
+      return res.status(401).json({
+        error: "Authentication failed: user does not exist"
+      });
     }
 
+    // Check account status
     if (!user.isActive) {
-      return res.status(403).json({ error: 'Your account is currently inactive.' });
+      return res.status(403).json({
+        error: "Access denied: account is inactive"
+      });
     }
 
-    req.user = user;
-    next();
-  } catch (error) {
-    return res.status(403).json({ error: 'Invalid or expired token.' });
+    // Attach minimal user context
+    req.user = {
+      id: user.id,
+      role: user.role
+    };
+
+    return next();
+
+  } catch (err) {
+    // Handle token-specific errors separately (optional but cleaner)
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({
+        error: "Token expired. Please login again"
+      });
+    }
+
+    return res.status(401).json({
+      error: "Authentication failed: invalid token"
+    });
   }
 };
 
