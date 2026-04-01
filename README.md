@@ -32,6 +32,20 @@ src/
 
 ---
 
+## 🧠 Design Approach
+
+This project is structured using a layered architecture:
+
+- Routes → handle API endpoints
+- Controllers → manage request/response
+- Services → contain business logic
+- Store → acts as a data layer
+
+I intentionally separated concerns to keep the system scalable and testable.
+
+RBAC is implemented via middleware to ensure centralized access control rather than scattering permission checks across controllers.
+
+
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the repository
@@ -239,6 +253,8 @@ This project uses an **in-memory store**:
 
 ---
 
+
+
 ## ✨ Future Improvements
 
 * Add JWT-based authentication
@@ -257,6 +273,7 @@ This project uses an **in-memory store**:
 * Focused on clarity over complexity
 
 ---
+
 
 ## ✅ Conclusion
 
