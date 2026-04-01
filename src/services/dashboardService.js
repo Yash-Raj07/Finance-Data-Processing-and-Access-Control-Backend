@@ -40,36 +40,31 @@ class DashboardService {
       return acc;
     }, {});
 
-    // Recent transactions (last 5)
+   // Recent transactions (last 5)
     const recentTransactions = [...records]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
 
     // Trends: Monthly aggregation
-const monthlyTrendsMap = new Map();
+    const monthlyTrends = records.reduce((acc, record) => {
+      const date = new Date(record.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (!acc[monthKey]) {
+        acc[monthKey] = { income: 0, expense: 0, net: 0 };
+      }
 
-for (const record of records) {
-  const date = new Date(record.date);
-  const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      if (record.type === 'income') {
+        acc[monthKey].income += record.amount;
+        acc[monthKey].net += record.amount;
+      } else {
+        acc[monthKey].expense += record.amount;
+        acc[monthKey].net -= record.amount;
+      }
+      
+      return acc;
+    }, {});
 
-  if (!monthlyTrendsMap.has(monthKey)) {
-    monthlyTrendsMap.set(monthKey, {
-      income: 0,
-      expense: 0,
-      net: 0
-    });
-  }
-
-  const monthData = monthlyTrendsMap.get(monthKey);
-
-  if (record.type === "income") {
-    monthData.income += record.amount;
-    monthData.net += record.amount;
-  } else {
-    monthData.expense += record.amount;
-    monthData.net -= record.amount;
-  }
-}
 
 // Convert Map → Object (if needed)
 const monthlyTrends = Object.fromEntries(monthlyTrendsMap);
