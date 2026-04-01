@@ -46,6 +46,18 @@ I intentionally separated concerns to keep the system scalable and testable.
 RBAC is implemented via middleware to ensure centralized access control rather than scattering permission checks across controllers.
 
 
+
+## 🔄 Example Flow (Create Record)
+
+1. Request hits `/records`
+2. Auth middleware validates user
+3. RBAC middleware checks permissions
+4. Controller processes request
+5. Service layer handles logic
+6. Data stored in memory
+7. Response returned
+
+
 ## ⚙️ Setup Instructions
 
 ### 1. Clone the repository
