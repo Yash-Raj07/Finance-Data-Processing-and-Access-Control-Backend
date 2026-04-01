@@ -33,33 +33,29 @@ class RecordService {
   getRecords(options = {}) {
     const { type, category, date, search, page = 1, limit = 10 } = options;
     
-  const results = db.records.filter(record => {
-  // Ignore soft-deleted records
-  if (record.isDeleted) return false;
+// Filter out soft-deleted records first
+    let results = db.records.filter(r => !r.isDeleted);
 
-  // Type filter
-  if (type && record.type !== type) return false;
+    if (type) {
+      results = results.filter(r => r.type === type);
+    }
 
-  // Category filter
-  if (category && record.category !== category) return false;
+    if (category) {
+      results = results.filter(r => r.category === category);
+    }
 
-  // Date filter
-  if (date && !record.date.startsWith(date)) return false;
+    if (date) {
+      results = results.filter(r => r.date.startsWith(date));
+    }
 
-  // Search filter
-  if (search) {
-    const searchTerm = search.toLowerCase();
-
-    const matchesSearch =
-      (record.note && record.note.toLowerCase().includes(searchTerm)) ||
-      record.category.toLowerCase().includes(searchTerm);
-
-    if (!matchesSearch) return false;
-  }
-
-  return true;
-});
-
+    // Search support
+    if (search) {
+      const searchTerm = search.toLowerCase();
+      results = results.filter(r => 
+        (r.note && r.note.toLowerCase().includes(searchTerm)) || 
+        r.category.toLowerCase().includes(searchTerm)
+      );
+    }
     // Pagination
     const totalCount = results.length;
     const startIndex = (page - 1) * limit;
