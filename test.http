@@ -1,0 +1,36 @@
+### 1. Login to get token
+
+# Admin: admin-123 / admin@example.com
+# Analyst: analyst-123 / analyst@example.com
+# Viewer: viewer-123 / viewer@example.com
+POST http://localhost:3000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "id": "admin-123"
+}
+
+### 2. Get Users (Requires Token + Admin role)
+GET http://localhost:3000/api/users
+Authorization: Bearer <YOUR_TOKEN>
+
+### 3. Create User (Requires Token + Admin role)
+POST http://localhost:3000/api/users
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{
+  "name": "New User",
+  "email": "new@test.com",
+  "role": "analyst"
+}
+
+### 4. Get Dashboard Summary (Requires Token + Analyst/Admin role)
+GET http://localhost:3000/api/dashboard/summary
+Authorization: Bearer <YOUR_TOKEN>
+
+### 5. Get Records (Requires Token)
+GET http://localhost:3000/api/records?page=1&limit=5
+Authorization: Bearer <YOUR_TOKEN>
+:3000/users
