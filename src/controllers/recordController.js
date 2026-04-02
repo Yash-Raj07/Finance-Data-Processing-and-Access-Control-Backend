@@ -2,47 +2,47 @@ const recordService = require('../services/recordService');
 
 class RecordController {
   createRecord(req, res, next) {
-
     try {
-  const { amount, type, category, date, note } = req.body;
-  const userId = req.user.id; // Extracted from auth middleware
+      const { amount, type, category, date, note } = req.body;
+      const userId = req.user.id; // Extracted from auth middleware
 
-  // Required fields validation
-  if (!amount || !type || !category) {
-    return res.status(400).json({
-      error: "Amount, type, and category are required"
-    });
+      // Required fields validation
+      if (!amount || !type || !category) {
+        return res.status(400).json({
+          error: "Amount, type, and category are required"
+        });
+      }
+
+      // Amount validation
+      if (amount <= 0) {
+        return res.status(400).json({
+          error: "Amount must be a positive number"
+        });
+      }
+
+      // Type validation
+      if (!["income", "expense"].includes(type)) {
+        return res.status(400).json({
+          error: "Type must be 'income' or 'expense'"
+        });
+      }
+
+      const record = recordService.createRecord({
+        userId,
+        amount,
+        type,
+        category,
+        date,
+        note
+      });
+
+      return res.status(201).json(record);
+    } catch (error) {
+      next(error);
+    }
   }
 
-  // Amount validation
-  if (amount <= 0) {
-    return res.status(400).json({
-      error: "Amount must be a positive number"
-    });
-  }
-
-  // Type validation
-  if (!["income", "expense"].includes(type)) {
-    return res.status(400).json({
-      error: "Type must be 'income' or 'expense'"
-    });
-  }
-
-  const record = recordService.createRecord({
-    userId,
-    amount,
-    type,
-    category,
-    date,
-    note
-  });
-
-  return res.status(201).json(record);
-
-} catch (error) {
-  next(error);
-}
-    getRecords(req, res, next) {
+  getRecords(req, res, next) {
     try {
       const { type, category, date, search, page, limit } = req.query;
       const result = recordService.getRecords({ type, category, date, search, page, limit });
