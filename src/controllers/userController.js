@@ -4,36 +4,63 @@ const userService = require('../services/userService');
 const JWT_SECRET = 'your_super_secret_key'; 
 class UserController {
   login(req, res, next) {
+   
+    
+    
     try {
-      const { email, id } = req.body; 
-      if (!email || !id) {
-        return res.status(400).json({ error: 'Email and ID (as password) are required' });
-      }
+  const { email, id: userId } = req.body;
 
-      const user = userService.getUserById(id);
-      if (!user || user.email !== email) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
-      if (!user.isActive) {
-        return res.status(403).json({ error: 'Account is inactive' });
-      }
-
-      const token = jwt.sign(
-        { id: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-
-      res.json({
-        message: 'Login successful',
-        token,
-        user: { id: user.id, name: user.name, role: user.role }
-      });
-    } catch (error) {
-      next(error);
-    }
+  if (!email || !userId) {
+    return res.status(400).json({
+      error: "Email and credentials are required"
+    });
   }
+
+  const user = userService.getUserById(userId);
+
+  const isInvalidUser =
+    !user || user.email !== email;
+
+  if (isInvalidUser) {
+    return res.status(401).json({
+      error: "Invalid email or credentials"
+    });
+  }
+
+  if (!user.isActive) {
+    return res.status(403).json({
+      error: "User account is inactive"
+    });
+  }
+
+  const payload = {
+    id: user.id,
+    role: user.role
+  };
+
+  const token = jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "1h"
+  });
+
+  const response = {
+    message: "Login successful",
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      role: user.role
+    }
+  };
+
+  return res.status(200).json(response);
+
+} catch (err) {
+  next(err);
+}
+
+
+
+    
 
   createUser(req, res, next) {
     try {
