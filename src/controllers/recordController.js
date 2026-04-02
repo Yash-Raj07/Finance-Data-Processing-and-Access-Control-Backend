@@ -2,28 +2,57 @@ const recordService = require('../services/recordService');
 
 class RecordController {
   createRecord(req, res, next) {
-    try {
-      const { amount, type, category, date, note } = req.body;
-      const userId = req.user.id; // From auth middleware
 
-      if (!amount || !type || !category) {
-        return res.status(400).json({ error: 'Amount, type, and category are required' });
-      }
 
-      if (amount <= 0) {
-        return res.status(400).json({ error: 'Amount must be a positive number' });
-      }
+    
+   try {
+  const payload = req.body;
+  const userId = req.user.id;
 
-      if (!['income', 'expense'].includes(type)) {
-        return res.status(400).json({ error: "Type must be 'income' or 'expense'" });
-      }
+  const { amount, type, category, date, note } = payload;
 
-      const record = recordService.createRecord({ userId, amount, type, category, date, note });
-      res.status(201).json(record);
-    } catch (error) {
-      next(error);
-    }
+  // Combined validation
+  const isInvalidAmount = !amount || amount <= 0;
+  const isInvalidType = type && !["income", "expense"].includes(type);
+  const isMissingFields = !amount || !type || !category;
+
+  if (isMissingFields) {
+    return res.status(400).json({
+      error: "Required fields missing: amount, type, category"
+    });
   }
+
+  if (isInvalidAmount) {
+    return res.status(400).json({
+      error: "Amount must be a positive number"
+    });
+  }
+
+  if (isInvalidType) {
+    return res.status(400).json({
+      error: "Invalid type. Allowed values: income, expense"
+    });
+  }
+
+  const recordPayload = {
+    userId,
+    amount,
+    type,
+    category,
+    date,
+    note
+  };
+
+  const createdRecord = recordService.createRecord(recordPayload);
+
+  return res.status(201).json(createdRecord);
+
+} catch (error) {
+  next(error);
+}
+
+
+  
 
   getRecords(req, res, next) {
     try {
