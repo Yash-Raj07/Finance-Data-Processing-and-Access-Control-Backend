@@ -5,24 +5,27 @@ describe('Finance Dashboard API', () => {
   let token;
 
   // Login to get token for tests
-  beforeAll(async () => {
-    const res = await request(app)
-      .post('/api/users/login')
-      .send({
-        email: 'admin@example.com',
-        id: 'admin-123'
-      });
-    token = res.body.token;
-  });
-
-  describe('Health Check', () => {
-    it('should return 200 UP', async () => {
-      const res = await request(app).get('/health');
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.status).toEqual('UP');
+beforeAll(async () => {
+  const response = await request(app)
+    .post('/api/users/login')
+    .send({
+      email: 'admin@example.com',
+      id: 'admin-123'
     });
-  });
 
+  token = response.body.token;
+});
+
+describe('Health Check', () => {
+  it('should return 200 UP', async () => {
+    const response = await request(app).get('/health');
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.status).toBe('UP');
+  });
+});
+
+  
   describe('Auth Middleware', () => {
     it('should return 401 if no token provided', async () => {
       const res = await request(app).get('/api/records');

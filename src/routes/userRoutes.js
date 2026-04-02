@@ -4,10 +4,10 @@ const userController = require('../controllers/userController');
 const auth = require('../middleware/auth');
 const rbac = require('../middleware/rbac');
 
-// Public route for login
+// Public route: login
 router.post('/login', userController.login);
 
-// Admin can create and list users
+// Admin-only routes
 router.post('/', auth, rbac(['admin']), userController.createUser);
 router.get('/', auth, rbac(['admin']), userController.getUsers);
 

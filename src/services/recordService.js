@@ -33,7 +33,7 @@ class RecordService {
   getRecords(options = {}) {
     const { type, category, date, search, page = 1, limit = 10 } = options;
     
-    // Filter out soft-deleted records first
+// Filter out soft-deleted records first
     let results = db.records.filter(r => !r.isDeleted);
 
     if (type) {
@@ -56,7 +56,6 @@ class RecordService {
         r.category.toLowerCase().includes(searchTerm)
       );
     }
-
     // Pagination
     const totalCount = results.length;
     const startIndex = (page - 1) * limit;

@@ -40,7 +40,7 @@ class DashboardService {
       return acc;
     }, {});
 
-    // Recent transactions (last 5)
+   // Recent transactions (last 5)
     const recentTransactions = [...records]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
@@ -65,6 +65,9 @@ class DashboardService {
       return acc;
     }, {});
 
+
+// Convert Map → Object (if needed)
+const monthlyTrends = Object.fromEntries(monthlyTrendsMap);
     return {
       totalIncome,
       totalExpense,
