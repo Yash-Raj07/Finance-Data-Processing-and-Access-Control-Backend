@@ -4,45 +4,43 @@ const userService = require('../services/userService');
 const JWT_SECRET = 'your_super_secret_key'; 
 class UserController {
   login(req, res, next) {
-   
-    
-    
-    try {
-  const { email, id: userId } = req.body;
+   try {
+  const { email, id } = req.body;
 
-  if (!email || !userId) {
+  // Validate input
+  if (!email || !id) {
     return res.status(400).json({
-      error: "Email and credentials are required"
+      error: "Email and ID (as password) are required"
     });
   }
 
-  const user = userService.getUserById(userId);
+  const user = userService.getUserById(id);
 
-  const isInvalidUser =
-    !user || user.email !== email;
-
-  if (isInvalidUser) {
+  // Validate credentials
+  if (!user || user.email !== email) {
     return res.status(401).json({
-      error: "Invalid email or credentials"
+      error: "Invalid credentials"
     });
   }
 
+  // Check user status
   if (!user.isActive) {
     return res.status(403).json({
-      error: "User account is inactive"
+      error: "Account is inactive"
     });
   }
 
-  const payload = {
-    id: user.id,
-    role: user.role
-  };
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role
+    },
+    JWT_SECRET,
+    { expiresIn: "1h" }
+  );
 
-  const token = jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "1h"
-  });
-
-  const response = {
+  return res.json({
     message: "Login successful",
     token,
     user: {
@@ -50,19 +48,12 @@ class UserController {
       name: user.name,
       role: user.role
     }
-  };
+  });
 
-  return res.status(200).json(response);
-
-} catch (err) {
-  next(err);
+} catch (error) {
+  next(error);
 }
-
-
-
-    
-
-  createUser(req, res, next) {
+    createUser(req, res, next) {
     try {
       const { name, email, role } = req.body;
       if (!name || !email) {
